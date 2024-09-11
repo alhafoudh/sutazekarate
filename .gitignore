@@ -1,2 +1,3 @@
-.ruby-version
-.idea
+/.ruby-version
+/.idea
+/*.gem

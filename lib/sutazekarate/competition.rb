@@ -5,6 +5,10 @@ module Sutazekarate
     include ActiveModel::Serializers::JSON
 
     include Logging
+    class << self
+      include Logging
+    end
+
     include Concurrent::Async
 
     attribute :id
@@ -65,8 +69,6 @@ module Sutazekarate
           registration_starts_at:,
           registration_ends_at:,
         )
-      rescue => ex
-        binding.pry
       end
     end
   end
