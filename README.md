@@ -18,6 +18,16 @@ Or install it yourself as:
 
     $ gem install sutazekarate
 
+## Usage
+
+List all competitions
+
+        puts Sutazekarate::Competition.all
+
+List all categories for competition
+
+        puts competition.categories
+
 ## Development
 
 After checking out the repo, run `bin/console` for an interactive prompt that will allow you to experiment.

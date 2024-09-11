@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
 
   spec.summary = 'Web scraper for www.sutazekarate.sk'
   spec.description = 'Web scraper for www.sutazekarate.sk what read all competition data and allows to explore them in structured way.'
-  spec.homepage = 'https://www.freevision.sk'
+  spec.homepage = 'https://github.com/alhafoudh/sutazekarate'
   spec.required_ruby_version = '>= 3.2.1'
 
   spec.metadata['homepage_uri'] = spec.homepage
