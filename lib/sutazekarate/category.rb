@@ -15,6 +15,14 @@ module Sutazekarate
     attribute :location_color
     attribute :time_range
 
+    def time_begin
+      time_range.begin
+    end
+
+    def time_end
+      time_range.end
+    end
+
     def competitors
       @competitors ||= begin
         logger.debug("Fetching competitors for category #{id}")
