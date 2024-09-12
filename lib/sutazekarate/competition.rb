@@ -5,6 +5,7 @@ module Sutazekarate
     include ActiveModel::Serializers::JSON
 
     include Logging
+
     class << self
       include Logging
     end
@@ -29,6 +30,41 @@ module Sutazekarate
           Category.build(row)
         end
       end
+    end
+
+    def preload
+      categories.map do |category|
+        category.async.preload
+      end.flatten
+    end
+
+    def preload!
+      preload.map(&:value)
+    end
+
+    def timetables
+      @timetables ||= begin
+        categories
+          .group_by(&:location)
+          .map do |location, location_categories|
+          entries = location_categories
+            .select { |category| category.time_range.present? }
+            .sort_by { |category| category.time_range.begin }
+            .map do |location_category|
+            TimetableEntry.new(
+              category: location_category,
+              time_range: location_category.time_range,
+            )
+          end
+
+          Timetable.new(
+            location:,
+            entries:,
+          )
+        end
+      end
+    rescue => ex
+      binding.irb
     end
 
     def self.all(year: Date.today.year)

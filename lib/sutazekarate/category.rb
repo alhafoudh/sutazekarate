@@ -86,6 +86,17 @@ module Sutazekarate
       end
     end
 
+    def preload
+      [
+        async.competitors,
+        async.ladder,
+      ]
+    end
+
+    def preload!
+      preload.map(&:value)
+    end
+
     def self.build(data)
       detail_element = Nokogiri::HTML5.fragment(data['detail'])
       id = Addressable::URI.parse(detail_element.search('a').first.attr('href')).query_values['k']
