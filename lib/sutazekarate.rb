@@ -4,7 +4,9 @@ require 'active_model'
 require 'http'
 require 'nokogiri'
 
-Time.zone_default = Time.find_zone!(ENV.fetch('TZ', 'Europe/Bratislava'))
+unless Time.zone
+  Time.zone_default = Time.find_zone!(ENV.fetch('TZ', 'Europe/Bratislava'))
+end
 
 loader = Zeitwerk::Loader.for_gem
 loader.setup
