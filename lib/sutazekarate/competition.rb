@@ -63,8 +63,6 @@ module Sutazekarate
           )
         end
       end
-    rescue => ex
-      binding.irb
     end
 
     def self.all(year: Date.today.year)
