@@ -11,6 +11,7 @@ module Sutazekarate
     attribute :position
     attribute :name
     attribute :discipline
+    attribute :duration
     attribute :location
     attribute :location_color
     attribute :time_range
@@ -114,7 +115,10 @@ module Sutazekarate
       id = Addressable::URI.parse(detail_element.search('a').first.attr('href')).query_values['k']
       category_element = Nokogiri::HTML5.fragment(data['kategoria'])
       category_span_elements = category_element.search('span')
-      name = category_span_elements[0].text.strip
+      name_raw = category_span_elements[0].text.strip
+      name_match = name_raw.match(/^([^(\/]+?)\s*(?:\(([^)]+)\))?\s*(?:\/([^\/]+)\/)?$/)
+      name = name_match[1]
+      duration = name_match[3]
       detail_element = category_span_elements[1]
       location = nil
       location_color = nil
@@ -133,6 +137,7 @@ module Sutazekarate
         position: data['pc'],
         name:,
         discipline:,
+        duration:,
         location:,
         location_color:,
         time_range:,

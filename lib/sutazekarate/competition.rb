@@ -44,23 +44,13 @@ module Sutazekarate
 
     def timetables
       @timetables ||= begin
-        categories
-          .group_by(&:location)
-          .map do |location, location_categories|
-          entries = location_categories
-            .select { |category| category.time_range.present? }
-            .sort_by { |category| category.time_range.begin }
-            .map do |location_category|
-            TimetableEntry.new(
-              category: location_category,
-              time_range: location_category.time_range,
-            )
-          end
+        logger.debug("Fetching timetable for competition #{id}")
+        response = HTTP.get("https://sutazekarate.sk/pdf_timetable3.php?sutaz=#{id}")
 
-          Timetable.new(
-            location:,
-            entries:,
-          )
+        html = Nokogiri::HTML5.fragment(response.body.to_s)
+
+        html.search('.divttm').map do |location_element|
+          Timetable.build(location_element, categories:)
         end
       end
     end
