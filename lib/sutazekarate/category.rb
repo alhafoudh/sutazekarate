@@ -21,11 +21,11 @@ module Sutazekarate
     end
 
     def time_begin
-      time_range.begin
+      time_range&.begin
     end
 
     def time_end
-      time_range.end
+      time_range&.end
     end
 
     def competitors
