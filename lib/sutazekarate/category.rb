@@ -10,6 +10,7 @@ module Sutazekarate
     attribute :id
     attribute :position
     attribute :name
+    attribute :gender
     attribute :discipline
     attribute :duration
     attribute :location
@@ -116,6 +117,13 @@ module Sutazekarate
       category_element = Nokogiri::HTML5.fragment(data['kategoria'])
       category_span_elements = category_element.search('span')
       name_raw = category_span_elements[0].text.strip
+      gender = :unknown
+      if category_span_elements[0].attr('class').include?('classzeny')
+        gender = :female
+      end
+      if category_span_elements[0].attr('class').include?('classmuzi')
+        gender = :male
+      end
       name_match = name_raw.match(/^([^(\/]+?)\s*(?:\(([^)]+)\))?\s*(?:\/([^\/]+)\/)?$/)
       name = name_match[1]
       duration = name_match[3]
@@ -136,6 +144,7 @@ module Sutazekarate
         id:,
         position: data['pc'],
         name:,
+        gender:,
         discipline:,
         duration:,
         location:,
