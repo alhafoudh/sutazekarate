@@ -20,6 +20,7 @@ module Sutazekarate
     attribute :note
     attribute :registration_starts_at
     attribute :registration_ends_at
+    attribute :attachments
 
     def categories
       @categories ||= begin
@@ -53,6 +54,42 @@ module Sutazekarate
           Timetable.build(location_element, categories:)
         end
       end
+    end
+
+    def self.find(id)
+      logger.debug("Fetching competition with id #{id}")
+
+      response = HTTP.get("https://www.sutazekarate.sk/sutaze_sutazinf.php?sutaz=#{id}")
+      html = Nokogiri::HTML5.fragment(response.body.to_s)
+
+      name = html.search('h3.section-title-inner').text.strip.rpartition(' - ').first
+      club = html.search('.table1 tr:nth-child(1) td:nth-child(2)').text.strip
+
+      starts_at = Date.parse(html.search('.table1 tr:nth-child(2)  td:nth-child(2)').text.strip)
+
+      registration_info = html.search('.table1 tr:nth-child(4) td:nth-child(2)').text.strip
+      registration_starts_at, registration_ends_at = registration_info.split(' - ').map do |date|
+        Date.parse(date)
+      end
+
+      attachments = html.search('.table1 tr').reduce([]) do |acc, row|
+        acc += row.search('td:nth-child(2) a[target="_blank"]').map do |a|
+          "https://www.sutazekarate.sk/#{a.attr('href')}"
+        end
+          .grep_v(/\.php/)
+
+        acc
+      end
+
+      Competition.new(
+        id:,
+        starts_at:,
+        name:,
+        club:,
+        registration_starts_at:,
+        registration_ends_at:,
+        attachments:,
+      )
     end
 
     def self.all(year: Date.today.year)
