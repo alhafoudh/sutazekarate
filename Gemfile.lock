@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    sutazekarate (0.0.9)
+    sutazekarate (0.0.10)
       activemodel (~> 7.2)
       activesupport (~> 7.2)
       concurrent-ruby (~> 1.3)
