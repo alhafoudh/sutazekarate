@@ -13,6 +13,7 @@ module Sutazekarate
     include Concurrent::Async
 
     attribute :id
+    attribute :image_url
     attribute :starts_at
     attribute :name
     attribute :club
@@ -62,6 +63,8 @@ module Sutazekarate
       response = HTTP.get("https://www.sutazekarate.sk/sutaze_sutazinf.php?sutaz=#{id}")
       html = Nokogiri::HTML5.fragment(response.body.to_s)
 
+      image_path = html.search('img.img-responsive.no-margin').attr('src').value
+      image_url = "https://www.sutazekarate.sk/#{image_path}"
       name = html.search('h3.section-title-inner').text.strip.rpartition(' - ').first
       club = html.search('.table1 tr:nth-child(1) td:nth-child(2)').text.strip
 
@@ -83,6 +86,7 @@ module Sutazekarate
 
       Competition.new(
         id:,
+        image_url:,
         starts_at:,
         name:,
         club:,
@@ -99,7 +103,10 @@ module Sutazekarate
       rows.map do |row|
         starts_at = Date.parse(row['datum'])
         content = Nokogiri::HTML5.fragment(row['obsah'])
+        image = Nokogiri::HTML5.fragment(row['obrazok'])
 
+        image_path = image.search('img').attr('src').value
+        image_url = "https://www.sutazekarate.sk/#{image_path}"
         name = content.search('h4').first.text.strip
         club_element = content.search('h5').first
         club = club_element.text.strip
@@ -122,6 +129,7 @@ module Sutazekarate
 
         Competition.new(
           id:,
+          image_url:,
           starts_at:,
           name:,
           club:,
