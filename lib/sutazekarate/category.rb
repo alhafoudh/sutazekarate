@@ -17,6 +17,10 @@ module Sutazekarate
     attribute :location_color
     attribute :time_range
 
+    attribute :has_draw_flat
+    attribute :has_draw_ladder
+    attribute :has_results_ladder
+
     def serializable_hash(options = nil)
       super.merge(time_begin:, time_end:).except('time_range')
     end
@@ -110,6 +114,21 @@ module Sutazekarate
       end
       discipline = Nokogiri::HTML5.fragment(data['disciplina']).text.strip
 
+      actions_element = Nokogiri::HTML5.fragment(data['detail'])
+      action_urls = actions_element.search('a').map do |a|
+        a.attr('href')
+      end
+
+      has_draw_flat = action_urls.any? do |url|
+        url.start_with?('pdf_rozlosovanieexportrobin.php')
+      end
+      has_draw_ladder = action_urls.any? do |url|
+        url.start_with?('sutaze_kategoriarozl.php')
+      end
+      has_results_ladder = action_urls.any? do |url|
+        url.start_with?('sutaze_kategoriarec.php')
+      end
+
       new(
         id:,
         position: data['pc'],
@@ -120,6 +139,9 @@ module Sutazekarate
         location:,
         location_color:,
         time_range:,
+        has_draw_flat:,
+        has_draw_ladder:,
+        has_results_ladder:,
       )
     end
 
