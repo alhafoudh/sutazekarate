@@ -85,6 +85,22 @@ module Sutazekarate
       preload.map(&:value)
     end
 
+    def self.find(id)
+      response = HTTP.get("https://www.sutazekarate.sk/sutaze_kategoriazoz.php?k=#{id}")
+      html = Nokogiri::HTML5.fragment(response.body.to_s)
+
+      competition_link = html.search('a').find do |x|
+        x.attr('href').starts_with?('sutaze_sutazinf.php')
+      end
+      competition_href = competition_link.attr('href')
+
+      competition_id = Addressable::URI.parse(competition_href).query_values['sutaz']
+
+      Competition.find(competition_id).categories.find do |category|
+        category.id.to_s == id.to_s
+      end
+    end
+
     def self.build(data)
       detail_element = Nokogiri::HTML5.fragment(data['detail'])
       id = Addressable::URI.parse(detail_element.search('a').first.attr('href')).query_values['k']
