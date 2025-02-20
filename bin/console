@@ -1,4 +1,9 @@
 #!/usr/bin/env ruby
 require_relative '../lib/sutazekarate'
 
-binding.irb
+begin
+  require 'pry'
+  binding.pry
+rescue
+  binding.irb
+end

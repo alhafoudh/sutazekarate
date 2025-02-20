@@ -41,62 +41,32 @@ module Sutazekarate
     end
 
     def ladder
-      @ladder ||= begin
-        logger.debug("Fetching ladder for category #{id}")
-        response = HTTP.get("https://www.sutazekarate.sk/sutaze_kategoriarozl.php?k=#{id}")
-        html = Nokogiri::HTML5(response.body.to_s)
+      draw_ladder
+    end
 
-        export_element = html.search('a').find do |elem|
-          elem.attr('href').start_with?('pdf_rozlosovanieexport.php')
-        end
-        export_url = "https://www.sutazekarate.sk/#{export_element.attr('href')}"
+    def draw_ladder_url
+      "https://www.sutazekarate.sk/sutaze_kategoriarozl.php?k=#{id}"
+    end
 
-        stages = []
+    def draw_ladder_export_url
+      "https://www.sutazekarate.sk/pdf_rozlosovanieexport.php?id=#{id}"
+    end
 
-        stage_index = 0
-        loop do
-          stage_element = html.search(".stlpecn.posun#{stage_index}").first
-          unless stage_element
-            break
-          end
+    def draw_ladder
+      @draw_ladder ||= begin
+        logger.debug("Fetching draw ladder for category #{id}")
+        parse_ladder(draw_ladder_url)
+      end
+    end
 
-          pairs = stage_element.search('.obalao').map.with_index do |pair_element, pair_index|
-            competitors = pair_element.search('.okienkopavukR').map do |competitor_element|
-              id_element = competitor_element.search('#sutaziaci').first
-              unless id_element
-                next nil
-              end
+    def results_ladder_url
+      "https://www.sutazekarate.sk/sutaze_kategoriarec.php?k=#{id}"
+    end
 
-              id = competitor_element.search('#sutaziaci').first.attr('value')
-              name = competitor_element.search('.meno').text.strip
-              club = competitor_element.search('.klub').text.strip
-
-              Competitor.new(
-                id: id,
-                name: name,
-                club: Club.new(name: club),
-              )
-            end
-
-            Pair.new(
-              index: pair_index,
-              competitor1: competitors[0],
-              competitor2: competitors[1],
-            )
-          end
-
-          stages << Stage.new(
-            index: stage_index,
-            pairs:,
-          )
-
-          stage_index += 1
-        end
-
-        Ladder.new(
-          export_url:,
-          stages:,
-        )
+    def results_ladder
+      @results_ladder ||= begin
+        logger.debug("Fetching results ladder for category #{id}")
+        parse_ladder(results_ladder_url)
       end
     end
 
@@ -150,6 +120,69 @@ module Sutazekarate
         location:,
         location_color:,
         time_range:,
+      )
+    end
+
+    private
+
+    def parse_ladder(url)
+      response = HTTP.get(url)
+      html = Nokogiri::HTML5(response.body.to_s)
+
+      pools = []
+      html.search('.pool').map do |pool|
+        title = pool.search('h5,h6').first.text.strip
+
+        stages = []
+
+        stage_index = 0
+        loop do
+          stage_element = html.search(".stlpecn.posun#{stage_index}").first
+          unless stage_element
+            break
+          end
+
+          pairs = stage_element.search('.obalao').map.with_index do |pair_element, pair_index|
+            competitors = pair_element.search('.okienkopavukR').map do |competitor_element|
+              id_element = competitor_element.search('#sutaziaci').first
+              unless id_element
+                next nil
+              end
+
+              id = competitor_element.search('#sutaziaci').first.attr('value')
+              name = competitor_element.search('.meno').text.strip
+              club = competitor_element.search('.klub').text.strip
+
+              Competitor.new(
+                id: id,
+                name: name,
+                club: Club.new(name: club),
+              )
+            end
+
+            Pair.new(
+              index: pair_index,
+              competitor1: competitors[0],
+              competitor2: competitors[1],
+            )
+          end
+
+          stages << Stage.new(
+            index: stage_index,
+            pairs:,
+          )
+
+          stage_index += 1
+        end
+
+        pools << Pool.new(
+          title:,
+          stages:,
+        )
+      end
+
+      Ladder.new(
+        pools:,
       )
     end
   end

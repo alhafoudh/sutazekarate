@@ -1,10 +1,10 @@
 module Sutazekarate
-  class Ladder
+  class Pool
     include ActiveModel::Model
     include ActiveModel::Attributes
     include ActiveModel::Serializers::JSON
 
-    attribute :export_url
-    attribute :pools
+    attribute :title
+    attribute :stages
   end
 end
