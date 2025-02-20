@@ -175,7 +175,7 @@ module Sutazekarate
 
         stage_index = 0
         loop do
-          stage_element = pool.search(".stlpecn.posun#{stage_index}").first
+          stage_element = pool.search(".stlpecn.posun#{stage_index}").first || (stage_index == 0 ? pool.search('.stlpecn').first : nil)
           unless stage_element
             break
           end
